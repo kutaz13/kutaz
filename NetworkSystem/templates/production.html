@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>نظام إنتاج كوجيبي - المطور</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        :root { --primary-cyan: #00c6ff; --scrap-red: #ff4b2b; --glass-bg: rgba(255, 255, 255, 0.05); }
+        .main-wrapper { padding: 40px 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; background: #0b1018; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* الكارت الرئيسي */
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px; padding: 35px; width: 100%; max-width: 1000px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); }
+        
+        h2 { color: var(--primary-cyan); text-align: center; margin-bottom: 30px; font-size: 28px; text-shadow: 0 0 15px rgba(0, 198, 255, 0.4); }
+
+        /* منطقة البحث */
+        .search-section { background: rgba(0, 198, 255, 0.07); padding: 20px; border-radius: 15px; border: 1px dashed rgba(0, 198, 255, 0.3); margin-bottom: 30px; }
+        
+        /* تنسيق المدخلات */
+        .form-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+        .input-group { flex: 1; min-width: 180px; }
+        .input-group label { display: block; color: #aaa; margin-bottom: 10px; font-size: 13px; font-weight: 500; }
+        
+        .glass-input { width: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 14px; color: #fff; outline: none; transition: all 0.3s ease; box-sizing: border-box; }
+        .glass-input:focus { border-color: var(--primary-cyan); background: rgba(0, 198, 255, 0.05); box-shadow: 0 0 15px rgba(0, 198, 255, 0.2); }
+
+        /* الأزرار */
+        .btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #00c6ff, #0072ff); border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: transform 0.2s; margin-top: 10px; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 114, 255, 0.4); }
+
+        /* الجدول */
+        .table-container { overflow-x: auto; margin-top: 40px; border-radius: 15px; background: rgba(0, 0, 0, 0.2); }
+        .data-table { width: 100%; border-collapse: collapse; color: white; }
+        .data-table th { background: rgba(0, 198, 255, 0.15); color: var(--primary-cyan); padding: 15px; font-size: 14px; text-transform: uppercase; }
+        .data-table td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); text-align: center; }
+        .data-table tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        /* الشارات (Badges) */
+        .badge { background: var(--primary-cyan); color: #000; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; }
+        .scrap-badge { background: rgba(255, 75, 43, 0.2); color: var(--scrap-red); border: 1px solid var(--scrap-red); padding: 4px 8px; border-radius: 6px; font-size: 12px; }
+
+        /* أزرار الإجراءات */
+        .btn-edit { color: #ffc107; text-decoration: none; margin-left: 15px; font-weight: 500; font-size: 13px; }
+        .btn-delete { color: var(--scrap-red); text-decoration: none; font-weight: 500; font-size: 13px; }
+        
+        .total-info { margin-top: 25px; padding: 15px; border-top: 2px solid rgba(0, 198, 255, 0.2); text-align: center; color: var(--primary-cyan); font-size: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="glass-card">
+        <h2>📦 نظام إنتاج كوجيبي</h2>
+
+        <div class="search-section">
+            <label style="color: var(--primary-cyan); display: block; margin-bottom: 10px; font-weight: bold;">🔍 استعلام سريع عن أوردر:</label>
+            <input type="text" id="orderSearch" class="glass-input" placeholder="اكتب رقم الأوردر هنا للفلترة الفورية..." onkeyup="filterByOrder()">
+        </div>
+        
+        <form action="/add_production" method="POST">
+            <div class="form-row">
+                <div class="input-group">
+                    <label>رقم الأوردر (Order No):</label>
+                    <input type="text" name="order_no" class="glass-input" placeholder="OR-505" required>
+                </div>
+                <div class="input-group">
+                    <label>تاريخ التشغيلة:</label>
+                    <input type="date" name="production_date" class="glass-input" required>
+                </div>
+                <div class="input-group">
+                    <label>رقم اللوط (Lot No):</label>
+                    <input type="text" name="lot_no" class="glass-input" placeholder="940" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group">
+                    <label>نوع الخامة:</label>
+                    <input type="text" name="roll_type" class="glass-input" placeholder="Firox / Finor" required>
+                </div>
+                <div class="input-group">
+                    <label>عدد البكر:</label>
+                    <input type="number" id="roll_count" name="joints" class="glass-input" placeholder="0" required oninput="calculateWeight()">
+                </div>
+                <div class="input-group">
+                    <label>وزن البكرة الواحدة (كجم):</label>
+                    <input type="number" id="roll_weight" name="weight" class="glass-input" placeholder="0" required oninput="calculateWeight()">
+                </div>
+                <div class="input-group">
+                    <label>إجمالي الوزن المتوقع:</label>
+                    <input type="number" id="total_weight_display" class="glass-input" style="background: rgba(0, 198, 255, 0.12); color: var(--primary-cyan); font-weight: bold; border-color: var(--primary-cyan);" readonly>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary">✅ حفظ وتشغيل البيانات في السجل</button>
+        </form>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>اللوط</th>
+                        <th>الخامة</th>
+                        <th>بكر</th>
+                        <th>وزن البكرة</th>
+                        <th>إجمالي التشغيلة</th>
+                        <th>سكراب تقديري</th>
+                        <th>التوقيت</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set totals = namespace(weight=0) %}
+                    {% for log in production_logs %}
+                        {% set row_weight = (log.joints * log.weight)|round(0, 'common')|int %}
+                        {% set totals.weight = totals.weight + row_weight %}
+                        <tr>
+                            <td><strong>{{ log.lot_no }}</strong></td>
+                            <td>{{ log.roll_type }}</td>
+                            <td><span class="badge">{{ log.joints }}</span></td>
+                            <td>{{ log.weight|int }} كجم</td>
+                            <td><span style="color: var(--primary-cyan)">{{ row_weight }} كجم</span></td>
+                            <td><span class="scrap-badge">{{ (row_weight * 0.01)|round(0, 'common')|int }} كجم</span></td>
+                            <td style="color: #888; font-size: 12px;">{{ log.timestamp.strftime('%H:%M') }}</td>
+                            <td>
+                                <a href="/edit_production/{{ log.id }}" class="btn-edit">تعديل</a>
+                                <a href="/delete_production/{{ log.id }}" class="btn-delete" onclick="return confirm('هل تريد حذف هذه التشغيلة؟')">حذف</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="total-info">
+            📊 إجمالي إنتاج اليوم: <span id="day_total_prod">{{ totals.weight }}</span> كجم
+        </div>
+
+        <div style="margin-top: 30px; padding: 25px; background: rgba(255, 75, 43, 0.03); border: 1px solid rgba(255, 75, 43, 0.2); border-radius: 20px;">
+            <h3 style="color: var(--scrap-red); margin-top: 0; font-size: 18px;">⚖️ مطابقة سكراب نهاية اليوم (الفعلي)</h3>
+            <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                <div class="input-group" style="flex: 2;">
+                    <label>وزن السكراب الكلي من الميزان (كجم):</label>
+                    <input type="number" id="actual_scrap_input" class="glass-input" placeholder="أدخل الوزن الفعلي...">
+                </div>
+                <button onclick="reconcileScrap()" class="btn-primary" style="background: var(--scrap-red); flex: 1; min-width: 150px;">تحليل الفاقد</button>
+            </div>
+            <p id="reconcile_result" style="color: #ddd; font-size: 14px; margin-top: 20px; line-height: 1.6;"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+function calculateWeight() {
+    const count = parseInt(document.getElementById('roll_count').value) || 0;
+    const weight = parseInt(document.getElementById('roll_weight').value) || 0;
+    document.getElementById('total_weight_display').value = Math.round(count * weight);
+}
+
+function reconcileScrap() {
+    const actualScrap = Math.round(parseFloat(document.getElementById('actual_scrap_input').value)) || 0;
+    const dayTotal = parseInt(document.getElementById('day_total_prod').innerText) || 0;
+    const resultP = document.getElementById('reconcile_result');
+
+    if (dayTotal === 0) {
+        alert("لا يوجد بيانات إنتاج مسجلة حالياً!");
+        return;
+    }
+
+    const scrapPercent = ((actualScrap / dayTotal) * 100).toFixed(2);
+    resultP.innerHTML = `⭐ <strong>تحليل نهائي:</strong> سكرابك الفعلي <strong>${actualScrap} كجم</strong> يمثل <strong>${scrapPercent}%</strong> من إجمالي إنتاجك اليوم (${dayTotal} كجم).`;
+}
+
+function filterByOrder() {
+    let input = document.getElementById('orderSearch').value.toUpperCase();
+    let table = document.querySelector(".data-table");
+    let tr = table.getElementsByTagName("tr");
+    for (let i = 1; i < tr.length; i++) {
+        let td = tr[i].getElementsByTagName("td")[0]; 
+        if (td) {
+            let txtValue = td.textContent || td.innerText;
+            tr[i].style.display = (txtValue.toUpperCase().indexOf(input) > -1) ? "" : "none";
+        }
+    }
+}
+</script>
+</body>
+</html>

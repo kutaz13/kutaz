@@ -1,0 +1,73 @@
+/* 1. إعدادات الصفحة الأساسية - خلفية الفضاء العميق */
+body {
+    background-color: #050a10;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-image: radial-gradient(circle at 50% 50%, #0b1a2a 0%, #050a10 100%);
+}
+
+/* 2. تصميم الكروت (Cards) - تأثير الزجاج المتطور */
+.card {
+    background: rgba(10, 25, 40, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 212, 255, 0.6);
+}
+
+/* 3. تصميم النصوص والعناوين */
+h2 {
+    color: #00d4ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.5rem;
+    margin-top: 0;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+/* 4. تصميم الجدول (Table) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th {
+    color: #8899a6;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* 5. تصميم زر الحالة (Status Badge) */
+.status-badge {
+    background: rgba(0, 255, 136, 0.1);
+    color: #00ff88;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    border: 1px solid #00ff88;
+}
+
+/* 6. تنسيق الـ Terminal في الزاوية */
+#terminal-logs {
+    border-radius: 8px;
+    background: #000 !important;
+    border: 1px solid #00ff00 !important;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+}

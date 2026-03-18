@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Intelligence OS - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-glow: #00d4ff;
+            --secondary-glow: #0072ff;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body { 
+            background-color: #02050a; 
+            margin: 0; 
+            overflow: hidden; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            color: white;
+        }
+
+        .scrolling-background { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 200%; 
+            background-image: linear-gradient(to bottom, rgba(2,5,10,0.8), rgba(2,5,10,0.4)), 
+            url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072'); 
+            background-size: cover; z-index: -1; animation: rotateEarth 100s linear infinite; 
+        }
+
+        @keyframes rotateEarth { from { background-position: 0% 0%; } to { background-position: 100% 100%; } }
+
+        .main-wrapper { display: flex; flex: 1; overflow: hidden; }
+
+        /* Sidebar المطور - تصميم Slim */
+        .sidebar { 
+            width: 100px; 
+            background: rgba(0, 0, 0, 0.8); 
+            backdrop-filter: blur(30px); 
+            border-left: 1px solid var(--glass-border); 
+            padding: 20px 10px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 20px; 
+            transition: width 0.3s ease;
+        }
+        
+        .sidebar:hover { width: 240px; } /* يتمدد عند الوقوف عليه */
+
+        .side-link { 
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 15px; 
+            color: white; 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: 0.3s; 
+            background: var(--glass-bg);
+            border: 1px solid transparent;
+            overflow: hidden;
+        }
+
+        .side-link i { font-size: 20px; min-width: 30px; text-align: center; }
+        .side-link span { display: none; margin-right: 15px; white-space: nowrap; }
+        .sidebar:hover .side-link span { display: inline; }
+        .sidebar:hover .side-link { justify-content: flex-start; }
+
+        .side-link:hover { 
+            background: rgba(0, 212, 255, 0.1); 
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        /* تمييز زر نظام الإنتاج */
+        .prod-active { 
+            background: linear-gradient(45deg, var(--secondary-glow), var(--primary-glow)); 
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .content-scroller { flex: 1; padding: 40px; overflow-y: auto; scroll-behavior: smooth; }
+
+        /* الكروت الزجاجية */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.02); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 30px; 
+            padding: 30px; 
+            margin-bottom: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .section-title { 
+            font-size: 1.2rem; 
+            color: var(--primary-glow); 
+            margin-bottom: 25px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* الجداول الاحترافية */
+        .custom-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        .custom-table th { padding: 15px; color: #666; font-weight: 500; text-align: right; }
+        .custom-table td { 
+            padding: 20px 15px; 
+            background: rgba(255,255,255,0.03); 
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .custom-table td:first-child { border-right: 1px solid var(--glass-border); border-radius: 0 15px 15px 0; }
+        .custom-table td:last-child { border-left: 1px solid var(--glass-border); border-radius: 15px 0 0 15px; }
+
+        .status-badge { 
+            padding: 5px 15px; 
+            border-radius: 20px; 
+            font-size: 12px; 
+            background: rgba(0, 255, 136, 0.1); 
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+
+        #earth-container { position: fixed; top: 10px; left: 10px; width: 150px; height: 150px; z-index: 100; opacity: 0.8; }
+        
+        #chat-icon { 
+            position: fixed; bottom: 30px; left: 30px; 
+            width: 65px; height: 65px; 
+            background: var(--primary-glow); 
+            border-radius: 22px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 28px; cursor: pointer; box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+            transition: 0.3s;
+        }
+        #chat-icon:hover { transform: translateY(-5px) rotate(5deg); }
+    </style>
+</head>
+
+<body>
+    <div class="scrolling-background"></div>
+    <div id="earth-container"></div>
+
+    <div id="data-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); width:400px; background:#000; border:1px solid var(--primary-glow); padding:30px; z-index:10000; border-radius:25px; box-shadow: 0 0 50px rgba(0, 212, 255, 0.2);">
+        <h5 style="color:var(--primary-glow);">📡 SCANNING TARGET</h5>
+        <hr style="border-color: #333;">
+        <div id="decrypting-text" style="font-family:'Courier New', monospace; color:lime; font-size:14px;"></div>
+        <button onclick="document.getElementById('data-modal').style.display='none'" class="btn btn-dark w-100 mt-4" style="border-radius:15px; border: 1px solid #444;">DISCONNECT</button>
+    </div>
+
+    <div id="chat-icon" onclick="toggleChat()">💬</div>
+    
+    <div class="main-wrapper">
+        <aside class="sidebar">
+            <div class="mb-5 text-center" style="color: var(--primary-glow); font-weight: bold; font-size: 20px;">COGEPI</div>
+            <a href="#" class="side-link"><i>🏠</i><span>الرئيسية</span></a>
+            
+            <a href="#" class="side-link"><i>🛡️</i><span>مشرفين</span></a>
+            <a href="{{ url_for('deep_scan') }}" class="side-link"><i>🔍</i><span>فحص الأجهزة</span></a>
+            <a href="{{ url_for('news') }}" class="side-link"><i>📰</i><span>الأخبار</span></a>
+            <a href="/production_system" class="side-link prod-active"><i>📦</i><span>نظام الإنتاج</span></a>
+            
+            <div class="mt-auto w-100">
+                <a href="/login" class="side-link" style="color: #ff4d4d;"><i>🚪</i><span>خروج</span></a>
+            </div>
+        </aside>
+
+        <main class="content-scroller">
+            <div class="glass-card" data-tilt data-tilt-max="2">
+                <div class="section-title"><span>📡</span> الشبكة المكتشفة</div>
+                <table class="custom-table">
+                    <thead>
+                        <tr><th>الجهاز</th><th>الحالة التشغيلية</th><th>الأمر</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for device in devices %}
+                        <tr>
+                            <td style="font-weight: bold; letter-spacing: 1px;">{{ device.ip }}</td>
+                            <td><span class="status-badge">{{ device.status }}</span></td>
+                            <td>
+                                <button onclick="openDeepScan('{{ device.ip }}')" class="btn btn-sm btn-outline-info" style="border-radius: 10px; font-size: 11px;">ANALYSIS</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="glass-card">
+                <div class="section-title"><span>📊</span> تقارير الخامات (Mica)</div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 20px; border-right: 3px solid #00d4ff;">
+                            <h5 style="color: #fff;">Firox Series</h5>
+                            <p style="color: #888; font-size: 0.9rem;">تتميز بصلابة ميكانيكية مذهلة وقدرة تحمل للجهد العالي.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 20px; border-right: 3px solid #0072ff;">
+                            <h5 style="color: #fff;">Finor Series</h5>
+                            <p style="color: #888; font-size: 0.9rem;">الخيار الأول للأجزاء ذات المنحنيات الدقيقة بفضل مرونتها.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer style="padding: 10px 40px; background: rgba(0,0,0,0.5); border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; font-size: 12px; color: #666;">
+        <div>SYSTEM STATUS: <span style="color: #00ff88;">COGEPI ON</span></div>
+        <div>COG EPI INTELLIGENCE © 2026</div>
+    </footer>
+
+    <script>
+        // كود كوكب الأرض
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(150, 150);
+        document.getElementById('earth-container').appendChild(renderer.domElement);
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x333333));
+        const loader = new THREE.TextureLoader();
+        const globe = new THREE.Mesh(
+            new THREE.SphereGeometry(1, 64, 64), 
+            new THREE.MeshPhongMaterial({ map: loader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg') })
+        );
+        scene.add(globe);
+        camera.position.z = 2;
+        function animate() { requestAnimationFrame(animate); globe.rotation.y += 0.002; renderer.render(scene, camera); }
+        animate();
+
+        // وظائف الفحص
+        function openDeepScan(ip) {
+            const modal = document.getElementById('data-modal');
+            const textDiv = document.getElementById('decrypting-text');
+            modal.style.display = 'block';
+            textDiv.innerHTML = "> Accessing IP: " + ip;
+            setTimeout(() => textDiv.innerHTML += "<br>> Protocol: HTTPS Secure", 500);
+            setTimeout(() => textDiv.innerHTML += "<br>> Status: <span style='color:lime'>SYNCED</span>", 1200);
+        }
+
+        // تفعيل الـ Tilt
+        VanillaTilt.init(document.querySelectorAll(".glass-card"), {
+            max: 2,
+            speed: 400,
+            glare: true,
+            "max-glare": 0.05,
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>شاشة الفحص العميق - نظام 3D</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #050a10; margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
+        .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072') center/cover; z-index: -1; filter: brightness(0.3); }
+        .scan-card { background: rgba(0, 0, 0, 0.5) !important; backdrop-filter: blur(20px); border: 1px solid rgba(0, 212, 255, 0.5); border-radius: 25px; padding: 40px; width: 80%; max-width: 600px; text-align: center; box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); }
+        .progress { background: rgba(255,255,255,0.1); border-radius: 10px; height: 20px; }
+        .progress-bar { background-color: #00d4ff; box-shadow: 0 0 10px #00d4ff; transition: width 0.5s ease; }
+        h2 { color: #00d4ff; margin-bottom: 20px; }
+        #back-btn { display: none; } /* مخفي حتى يكتمل الفحص */
+    </style>
+</head>
+<body>
+
+    <div class="bg-layer"></div>
+
+    <div class="scan-card">
+        <h2 id="scan-title">جاري إجراء الفحص العميق للشبكة 📡</h2>
+        <p id="status-msg">بدء بروتوكول التشخيص (Firox/Finor)...</p>
+        
+        <div class="progress mt-4 mb-4">
+            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+        </div>
+
+        <p id="warning-msg" class="text-warning">يرجى عدم إغلاق النافذة حتى اكتمال المعالجة.</p>
+        
+        <a href="/" id="back-btn" class="btn btn-outline-info mt-3">العودة للرئيسية</a>
+    </div>
+
+    <script>
+        const progressBar = document.getElementById('progress-bar');
+        const statusMsg = document.getElementById('status-msg');
+        const backBtn = document.getElementById('back-btn');
+        const warningMsg = document.getElementById('warning-msg');
+        let width = 0;
+
+        const interval = setInterval(() => {
+            if (width >= 100) {
+                clearInterval(interval);
+                statusMsg.innerHTML = "✅ اكتمل الفحص: جميع العوازل تعمل بكفاءة.";
+                warningMsg.style.display = "none";
+                backBtn.style.display = "inline-block";
+            } else {
+                width += 2;
+                progressBar.style.width = width + '%';
+                
+                // تحديث الرسائل بناءً على التقدم
+                if (width === 20) statusMsg.innerHTML = "جاري فحص سلامة اتصالات Firox...";
+                if (width === 50) statusMsg.innerHTML = "جاري تحليل مرونة عوازل Finor...";
+                if (width === 80) statusMsg.innerHTML = "جاري توثيق سجلات الشبكة المشفرة...";
+            }
+        }, 100);
+    </script>
+</body>
+</html>
